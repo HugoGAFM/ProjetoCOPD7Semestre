@@ -1,0 +1,3 @@
+C:/Users/Hugog/OneDrive/Área de Trabalho/ProjetosCPD7Semestre/parallel-image-processing/build/CMakeFiles/ParallelImageProcessing.dir
+C:/Users/Hugog/OneDrive/Área de Trabalho/ProjetosCPD7Semestre/parallel-image-processing/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Hugog/OneDrive/Área de Trabalho/ProjetosCPD7Semestre/parallel-image-processing/build/CMakeFiles/ZERO_CHECK.dir

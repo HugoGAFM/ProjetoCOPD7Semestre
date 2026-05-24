@@ -1,0 +1,10 @@
+^C:\USERS\HUGOG\ONEDRIVE\ÁREA DE TRABALHO\PROJETOSCPD7SEMESTRE\PARALLEL-IMAGE-PROCESSING\BUILD\CMAKEFILES\804178C1D506BF4329306D675F3C1D8D\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/Hugog/OneDrive/Área de Trabalho/ProjetosCPD7Semestre/parallel-image-processing" "-BC:/Users/Hugog/OneDrive/Área de Trabalho/ProjetosCPD7Semestre/parallel-image-processing/build" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/Hugog/OneDrive/Área de Trabalho/ProjetosCPD7Semestre/parallel-image-processing/build/ParallelImageProcessing.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
