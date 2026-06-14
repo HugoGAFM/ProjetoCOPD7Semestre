@@ -6,18 +6,20 @@
 
 class ImageProcessor {
 public:
+    // Construtor que define o diretório de entrada e o diretório de saída.
     ImageProcessor(const std::string& inputDir, const std::string& outputDir);
 
-    // load image from file into cv::Mat
+    // Carrega uma imagem colorida do disco para um cv::Mat.
     void loadImage(const std::string& filename, cv::Mat& image);
 
-    // apply named filter ("blur", "sharpen", "edge")
+    // Aplica um filtro nomeado à imagem de entrada e grava o resultado em outputImage.
+    // Filtros suportados: "blur", "sharpen", "edge" (preto e branco).
     void applyFilter(const cv::Mat& inputImage, cv::Mat& outputImage, const std::string& filterType);
 
-    // save image (full output path)
+    // Salva a imagem processada em arquivo.
     void saveImage(const std::string& filename, const cv::Mat& image);
 
-    // process all images in inputDirectory with filterType, saving to outputDirectory
+    // Processa todas as imagens do diretório de entrada e grava no diretório de saída.
     void processImages(const std::string& filterType);
 
 private:

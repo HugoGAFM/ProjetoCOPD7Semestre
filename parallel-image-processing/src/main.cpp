@@ -13,6 +13,8 @@
 
 namespace fs = std::filesystem;
 
+// Processa imagens usando MPI. Cada processo manipula uma parte diferente do conjunto
+// de imagens baseado em seu rank, garantindo divisão de trabalho entre os nós.
 void processImagesWithMPI(int argc, char** argv, const std::string& inputDir,
                           const std::string& outputDir, const std::string& filterType) {
     MPIWorker mpiWorker;
@@ -21,6 +23,7 @@ void processImagesWithMPI(int argc, char** argv, const std::string& inputDir,
     int rank = mpiWorker.getProcessRank();
     int size = mpiWorker.getNumProcesses();
 
+    // Coleta os caminhos dos arquivos de imagem válidos no diretório de entrada.
     std::vector<std::string> images;
     for (const auto& entry : fs::directory_iterator(inputDir)) {
         if (!entry.is_regular_file()) continue;
@@ -35,15 +38,16 @@ void processImagesWithMPI(int argc, char** argv, const std::string& inputDir,
                   << ", imagens totais = " << images.size() << std::endl;
     }
 
-    // mapping for "mixed" mode: each rank gets a fixed filter
-    const std::vector<std::string> filters = { "blur", "sharpen", "edge" };
+    // Define o filtro local que este processo deve aplicar.
+    // Em modo "mixed", o filtro varia de acordo com o rank do processo.
+    const std::vector<std::string> filters = { "blur", "sharpen", "edge", "negative" };
     std::string localFilter;
     if (filterType == "mixed") {
         localFilter = filters[rank % static_cast<int>(filters.size())];
         std::cout << "[rank " << rank << "] usando filtro (mixed) -> " << localFilter << std::endl;
     } else {
-        // validate requested filter, fallback to blur if unknown
-        if (filterType == "blur" || filterType == "sharpen" || filterType == "edge") {
+        // Valida o filtro informado e usa blur como padrão em caso de valor desconhecido.
+        if (filterType == "blur" || filterType == "sharpen" || filterType == "edge" || filterType == "negative") {
             localFilter = filterType;
         } else {
             localFilter = "blur";
@@ -55,6 +59,8 @@ void processImagesWithMPI(int argc, char** argv, const std::string& inputDir,
     int processed = 0;
 
     ImageProcessor processor(inputDir, outputDir);
+
+    // Divide as imagens entre os processos MPI usando o índice modificado pelo número de processos.
     for (size_t i = 0; i < images.size(); ++i) {
         if ((int)(i % size) != rank) continue;
 
@@ -62,7 +68,7 @@ void processImagesWithMPI(int argc, char** argv, const std::string& inputDir,
         processor.loadImage(images[i], in);
         processor.applyFilter(in, out, localFilter);
 
-        // add rank suffix to avoid name clash in mixed mode
+        // Em modo mixed adiciona sufixo ao arquivo de saída para evitar conflito entre ranks.
         std::string outName = fs::path(images[i]).filename().string();
         if (filterType == "mixed") {
             outName = fs::path(images[i]).stem().string() + "_r" + std::to_string(rank) + "_" + localFilter + fs::path(images[i]).extension().string();
@@ -83,7 +89,7 @@ void processImagesWithMPI(int argc, char** argv, const std::string& inputDir,
     auto totalTime = std::chrono::duration<double>(
         std::chrono::steady_clock::now() - startTime).count();
 
-    // sincroniza todos os ranks antes do resumo final
+    // Sincroniza todos os processos MPI antes de coletar os resultados.
     MPI_Barrier(MPI_COMM_WORLD);
 
     if (size > 1) {
@@ -116,6 +122,7 @@ void processImagesWithMPI(int argc, char** argv, const std::string& inputDir,
     mpiWorker.finalizeMPI();
 }
 
+// Processa imagens em paralelo usando OpenMP. Cada thread processa imagens independentes do lote.
 void processImagesOpenMP(const std::string& inputDir,
                          const std::string& outputDir,
                          const std::string& filterType) {
@@ -140,7 +147,7 @@ void processImagesOpenMP(const std::string& inputDir,
     std::vector<int> threadCounts(numThreads, 0);
     auto startTime = std::chrono::steady_clock::now();
 
-    const std::vector<std::string> filters = { "blur", "sharpen", "edge" };
+    const std::vector<std::string> filters = { "blur", "sharpen", "edge", "negative" };
     bool mixedMode = (filterType == "mixed");
 
     if (mixedMode) {
@@ -152,6 +159,7 @@ void processImagesOpenMP(const std::string& inputDir,
         std::cout << "Uniform mode: all threads use filter '" << filterType << "'\n";
     }
 
+    // Laço paralelo: cada iteração processa uma imagem diferente.
 #pragma omp parallel for schedule(dynamic)
     for (int i = 0; i < totalImages; ++i) {
         int tid = 0;
@@ -169,6 +177,8 @@ void processImagesOpenMP(const std::string& inputDir,
             applySharpen(image);
         } else if (useFilter == "edge") {
             applyEdgeDetection(image);
+        } else if (useFilter == "negative") {
+            applyNegative(image);
         } else {
             applyBlur(image, 3);
         }
@@ -209,6 +219,7 @@ int main(int argc, char** argv) {
     std::string outputDir = argv[3];
     std::string filter = (argc >= 5) ? argv[4] : "blur";
 
+    // Direciona para o modo MPI ou OpenMP, de acordo com o argumento fornecido.
     if (mode == "mpi") {
         processImagesWithMPI(argc, argv, inputDir, outputDir, filter);
     } else if (mode == "openmp") {

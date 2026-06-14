@@ -10,14 +10,14 @@ public:
     MPIWorker();
     ~MPIWorker();
 
-    // initialize MPI (pass argc/argv from main)
+    // iniciar MPI
     void initMPI(int &argc, char **argv);
 
-    // send/receive raw image buffer
+    // manda e recebe imagens como vetores de bytes (por exemplo, dados de imagem serializados).
     void sendImage(const std::vector<unsigned char>& image, int destination);
     void receiveImage(std::vector<unsigned char>& image, int source);
 
-    // finalize MPI
+    // Terminar MPI
     void finalizeMPI();
 
     int getProcessRank() const;
