@@ -167,7 +167,7 @@ cmake --build . --config Release
 #### 6. Configurar PATH do OpenCV (no Terminal)
 Antes de executar, adicione ao PATH:
 ```bash
-set PATH=%PATH%;C:\caminho\para\opencv\build\x64\vc15\bin
+set PATH=%PATH%;C:\caminho\para\opencv\build\x64\vc16\bin
 ```
 
 ### Exemplos de Execução
