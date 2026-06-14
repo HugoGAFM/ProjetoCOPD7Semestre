@@ -5,6 +5,11 @@ Este projeto implementa um pipeline de processamento de imagens com suporte a pa
 
 O código foi escrito em C++17 e usa OpenCV para leitura, processamento e gravação de imagens.
 
+## Link videos demonstração (Projeto 1 e Projeto 2)
+
+https://www.youtube.com/watch?v=Ds96z2gDQi8
+https://www.youtube.com/watch?v=gnuCq1YiHe8
+
 ## Arquivos Principais
 - `CMakeLists.txt`
   - Configura o build usando CMake.
